@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const GamePage = () => {
-  const defaultBoardSize = 10;
-  const defaultPlayers = 2;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { boardSize = 10, players = 1 } = location.state || {}; // 获取来自设置页面的参数
 
-  const [boardSize] = useState(defaultBoardSize);
   const [snakes, setSnakes] = useState({});
   const [ladders, setLadders] = useState({});
-  const [players] = useState(defaultPlayers);
-  const [playerPositions, setPlayerPositions] = useState(Array(defaultPlayers).fill(1));
+  const [playerPositions, setPlayerPositions] = useState(Array(players).fill(1));
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [diceRoll, setDiceRoll] = useState(null);
   const [boardCharacters, setBoardCharacters] = useState([]);
   const [gameOver, setGameOver] = useState(false);
-
-  const navigate = useNavigate();
 
   const playerColors = ['red', 'blue', 'green', 'purple'];
 
@@ -152,7 +149,7 @@ const GamePage = () => {
   };
 
   const handleRestart = () => {
-    navigate('/');
+    navigate('/settings');
   };
 
   return (

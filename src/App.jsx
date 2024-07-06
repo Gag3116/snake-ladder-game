@@ -6,7 +6,7 @@ function App() {
   return (
     <div>
       <h1>Welcome to Snake and Ladder</h1>
-      <Link to="/game">Start Game</Link>
+      <Link to="/settings">Game Settings</Link>
     </div>
   );
 }
