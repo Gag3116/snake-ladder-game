@@ -1,0 +1,37 @@
+/* src/index.css */
+.board {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background-color 0.5s ease;
+}
+
+.cell .number {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 0.6em;
+}
+
+.cell.active {
+  background-color: rgba(0, 255, 0, 0.3); /* 当前玩家所在位置的单元格高亮显示 */
+}
+
+.snakes-ladders {
+  position: absolute;
+  pointer-events: none;
+}
