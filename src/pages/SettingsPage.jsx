@@ -1,13 +1,33 @@
 // src/pages/SettingsPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const SettingsPage = () => {
   const [boardSize, setBoardSize] = useState(10);
-  const [players, setPlayers] = useState([{ name: '', color: 'red' }, { name: '', color: 'blue' }]);
+  const [players, setPlayers] = useState([
+    { name: 'Player 1', color: 'red' },
+    { name: 'Player 2', color: 'blue' }
+  ]);
+  const [selectedLibrary, setSelectedLibrary] = useState('');
+  const [wordLibraries, setWordLibraries] = useState([]);
   const playerColors = ['red', 'blue', 'green', 'purple'];
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchWordLibraries = async () => {
+      try {
+        const response = await axios.get('http://localhost:5001/api/word-libraries');
+        setWordLibraries(response.data);
+        setSelectedLibrary(response.data[0]?._id || '');
+      } catch (error) {
+        console.error("Error fetching word libraries:", error);
+      }
+    };
+
+    fetchWordLibraries();
+  }, []);
 
   const handlePlayerNameChange = (index, name) => {
     const newPlayers = [...players];
@@ -19,7 +39,7 @@ const SettingsPage = () => {
     const newPlayers = [];
     for (let i = 0; i < count; i++) {
       newPlayers.push({
-        name: players[i] ? players[i].name : '',
+        name: players[i] ? players[i].name : `Player ${i + 1}`,
         color: playerColors[i]
       });
     }
@@ -27,7 +47,7 @@ const SettingsPage = () => {
   };
 
   const startGame = () => {
-    navigate('/game', { state: { boardSize, players } });
+    navigate('/game', { state: { boardSize, players, selectedLibrary } });
   };
 
   return (
@@ -67,6 +87,18 @@ const SettingsPage = () => {
           </span>
         </div>
       ))}
+      <br />
+      <label>
+        Select Word Library:
+        <select value={selectedLibrary} onChange={(e) => setSelectedLibrary(e.target.value)}>
+          {wordLibraries.map((library) => (
+            <option key={library._id} value={library._id}>
+              {library.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <br />
       <button onClick={startGame}>Start Game</button>
     </div>
   );

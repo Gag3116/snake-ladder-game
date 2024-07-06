@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const GamePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { boardSize = 10, players = [{ name: 'Player 1', color: 'red' }] } = location.state || {}; // 获取来自设置页面的参数
+  const { boardSize = 10, players = [{ name: 'Player 1', color: 'red' }], selectedLibrary } = location.state || {};
 
   const [snakes, setSnakes] = useState({});
   const [ladders, setLadders] = useState({});
@@ -15,18 +16,23 @@ const GamePage = () => {
   const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
-    const characters = [];
-    for (let i = 0; i < boardSize * boardSize; i++) {
-      characters.push(getRandomChineseCharacter());
-    }
-    setBoardCharacters(characters);
-    generateSnakesAndLadders();
-  }, [boardSize]);
+    const fetchWordLibrary = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5001/api/word-libraries/${selectedLibrary}`);
+        const selectedWords = response.data.words;
+        const characters = [];
+        for (let i = 0; i < boardSize * boardSize; i++) {
+          characters.push(selectedWords[i % selectedWords.length]);
+        }
+        setBoardCharacters(characters);
+      } catch (error) {
+        console.error("Error fetching word library:", error);
+      }
+    };
 
-  const getRandomChineseCharacter = () => {
-    const code = Math.floor(Math.random() * (0x9FFF - 0x4E00 + 1)) + 0x4E00;
-    return String.fromCharCode(code);
-  };
+    fetchWordLibrary();
+    generateSnakesAndLadders();
+  }, [boardSize, selectedLibrary]);
 
   const generateSnakesAndLadders = () => {
     const newSnakes = {};
