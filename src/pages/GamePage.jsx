@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const GamePage = () => {
-  const defaultBoardSize = 10;
-  const defaultPlayers = 2;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { boardSize = 10, players = [{ name: 'Player 1', color: 'red' }] } = location.state || {}; // 获取来自设置页面的参数
 
-  const [boardSize] = useState(defaultBoardSize);
   const [snakes, setSnakes] = useState({});
   const [ladders, setLadders] = useState({});
-  const [players] = useState(defaultPlayers);
-  const [playerPositions, setPlayerPositions] = useState(Array(defaultPlayers).fill(1));
+  const [playerPositions, setPlayerPositions] = useState(Array(players.length).fill(1));
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [diceRoll, setDiceRoll] = useState(null);
   const [boardCharacters, setBoardCharacters] = useState([]);
   const [gameOver, setGameOver] = useState(false);
-
-  const navigate = useNavigate();
-
-  const playerColors = ['red', 'blue', 'green', 'purple'];
 
   useEffect(() => {
     const characters = [];
@@ -88,7 +83,7 @@ const GamePage = () => {
     if (newPosition === boardSize * boardSize) {
       setGameOver(true);
     } else {
-      setCurrentPlayer((currentPlayer + 1) % players);
+      setCurrentPlayer((currentPlayer + 1) % players.length);
     }
   };
 
@@ -100,7 +95,7 @@ const GamePage = () => {
         const cellNumber = i * boardSize + j + 1;
         const playerInCell = playerPositions.findIndex(position => position === cellNumber);
         row.push(
-          <div key={cellNumber} className={`cell ${playerInCell !== -1 ? 'active' : ''}`} style={{ backgroundColor: playerInCell !== -1 ? playerColors[playerInCell] : '' }}>
+          <div key={cellNumber} className={`cell ${playerInCell !== -1 ? 'active' : ''}`} style={{ backgroundColor: playerInCell !== -1 ? players[playerInCell].color : '' }}>
             {cellNumber !== 1 && boardCharacters[cellNumber - 1]}
             <span className="number">{cellNumber}</span>
           </div>
@@ -152,7 +147,7 @@ const GamePage = () => {
   };
 
   const handleRestart = () => {
-    navigate('/');
+    navigate('/settings');
   };
 
   return (
@@ -166,12 +161,12 @@ const GamePage = () => {
       {diceRoll !== null && <p>Dice Roll: {diceRoll}</p>}
       <div>
         {playerPositions.map((pos, index) => (
-          <p key={index} style={{ color: playerColors[index] }}>
-            Player {index + 1} Position: {pos}
+          <p key={index} style={{ color: players[index].color }}>
+            {players[index].name} Position: {pos}
           </p>
         ))}
       </div>
-      {gameOver && <p>Game Over! Player {currentPlayer + 1} wins!</p>}
+      {gameOver && <p>Game Over! {players[currentPlayer].name} wins!</p>}
       <button onClick={handleRestart}>Restart Game</button>
     </div>
   );
